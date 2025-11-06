@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Skill Gap Analysis Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Skill Gap Analysis</h1>
+      <p>Overview of skill gaps and training recommendations</p>
+    </header>
+
+    <section class="chart-section">
+      <canvas id="gapChart" width="800" height="400"></canvas>
+    </section>
+
+    <section class="stats">
+      <h2>Recommendations</h2>
+      <div id="recs"></div>
+      <div id="overall"></div>
+    </section>
+
+    <footer>
+      <small>Built with Python, Flask, pandas, Chart.js</small>
+    </footer>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
