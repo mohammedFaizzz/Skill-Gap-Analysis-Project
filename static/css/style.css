@@ -1,0 +1,26 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+}
+header h1 { margin: 0; }
+.chart-section { margin-top: 20px; }
+.stats { margin-top: 30px; }
+.recommendation {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e6eef8;
+  background: #fbfdff;
+  margin-bottom: 10px;
+}
+footer { margin-top: 30px; text-align: center; color: #6b7280; font-size: 0.9em;}
