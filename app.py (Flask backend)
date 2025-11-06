@@ -1,0 +1,80 @@
+from flask import Flask, render_template, jsonify
+import pandas as pd
+import os
+
+app = Flask(__name__)
+
+DATA_PATH = os.path.join(os.path.dirname(__file__), "data", "skills.csv")
+
+def load_data():
+    df = pd.read_csv(DATA_PATH)
+    # ensure numeric
+    df['required_level'] = pd.to_numeric(df['required_level'], errors='coerce').fillna(0).astype(int)
+    df['current_level'] = pd.to_numeric(df['current_level'], errors='coerce').fillna(0).astype(int)
+    return df
+
+def compute_skill_gaps(df):
+    # compute gap per record and aggregate by skill
+    df['gap'] = df['required_level'] - df['current_level']
+    df['gap'] = df['gap'].apply(lambda x: max(x, 0))  # no negative gaps
+    agg = df.groupby('skill').agg(
+        avg_required=('required_level', 'mean'),
+        avg_current=('current_level', 'mean'),
+        avg_gap=('gap', 'mean'),
+        count=('employee_id', 'count')
+    ).reset_index()
+    # convert to lists for JSON
+    return agg
+
+def make_recommendations(agg_df, threshold=0.5):
+    # threshold = average gap above which we recommend training (in rating points)
+    recs = []
+    # We'll also compute a simple "estimated efficiency improvement" for the org
+    # Hypothesis: For each skill, closing the gap by 1 point -> 5% efficiency improvement for tasks dependent on that skill.
+    # This is illustrative; adapt to your domain.
+    total_estimated_gain = 0.0
+    for _, r in agg_df.iterrows():
+        skill = r['skill']
+        avg_gap = r['avg_gap']
+        count = int(r['count'])
+        if avg_gap >= threshold:
+            # simple recommendation
+            recommended_training = f"Upskill {skill}: focused training to increase average level by {avg_gap:.1f} points"
+            # estimate efficiency: 5% per 1-point gap reduced * gap
+            est_gain = 0.05 * avg_gap
+            total_estimated_gain += est_gain
+            recs.append({
+                "skill": skill,
+                "avg_gap": round(float(avg_gap), 2),
+                "employees_affected": count,
+                "recommendation": recommended_training,
+                "estimated_efficiency_gain_fraction": round(est_gain, 3)
+            })
+    # convert to percent (combined rough estimate)
+    overall_estimated_efficiency_pct = round(total_estimated_gain * 100, 2)
+    return recs, overall_estimated_efficiency_pct
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/api/skills")
+def api_skills():
+    df = load_data()
+    agg = compute_skill_gaps(df)
+    # prepare JSON-friendly format
+    data = agg.to_dict(orient='records')
+    return jsonify({"skills": data})
+
+@app.route("/api/recommendations")
+def api_recommendations():
+    df = load_data()
+    agg = compute_skill_gaps(df)
+    recs, overall_pct = make_recommendations(agg, threshold=0.5)
+    return jsonify({
+        "recommendations": recs,
+        "estimated_overall_efficiency_increase_percent": overall_pct
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True)
