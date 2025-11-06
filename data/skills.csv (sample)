@@ -1,0 +1,9 @@
+employee_id,employee_name,skill,required_level,current_level
+1,Ashok,Python,5,3
+2,Sara,SQL,4,2
+3,John,Data Visualization,4,3
+4,Maya,Machine Learning,5,2
+5,Ravi,Communication,3,3
+6,Leena,Excel,4,3
+7,Adil,HTML/CSS,3,1
+8,Nina,JavaScript,4,2
